@@ -1,18 +1,25 @@
-let express = require('express');
-//inyección de la dependecia express
-let app = express();
-//app que hace la funcion del servidor 
-let personsRoute = require('./routes/persons');
-//incluimos el router que viene de person
-require("./database");
+const mongoose = require('mongoose');
+const express = require('express');
+const personsRoutes = require('./routes/persons');
 
+mongoose.Promise = global.Promise;
+const app = express();
 app.set('view engine', 'ejs');
-app.use(personsRoute);
-app.use('/assets', express.static(__dirname + '/public'));
+app.use(express.urlencoded( {extended:false} ));
+app.use(personsRoutes);
 
-let PORT = process.env.PORT || 3000;
-//Definición del puerto que escucha
+mongoose.connect(
+    'mongodb+srv://america:Ramon123456@cluster0.rlkv9.mongodb.net/?retryWrites=true&w=majority', 
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }
+);
 
-app.listen(PORT, () =>{
-    console.log('escuchando en el puerto 300')
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error: "));
+db.once("open", function () {
+    console.log("connected succesfully");
 });
+
+app.listen(3000);
